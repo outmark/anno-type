@@ -1,4 +1,4 @@
-** Source Code **
+**Source Code**
 
 ```js
 // @ts-check
@@ -26,7 +26,7 @@ export const neverAsserts = (value) => { }
 
 ```
 
-** Annotated Code **
+**Annotated Code**
 
 ```js
 // @ts-check
@@ -58,7 +58,7 @@ export const neverAsserts = (value) => { }
 
 ```
 
-** Annotation Results **
+**Annotation Results**
 
 ``` json
 {

@@ -387,11 +387,11 @@ if (
                 if (options['output-markdown'] === true) {
                     const markdownOutputPath = path.resolve(outputDirectory, `${sourceName}.${sourceExtension}.annotated.md`);
                     const markdownOutput = [
-                        `** Source Code **`,
+                        `**Source Code**`,
                         `${'```'}${sourceExtension}\n${sourceText}\n${'```'}`,
-                        `** Annotated Code **`,
+                        `**Annotated Code**`,
                         `${'```'}${sourceExtension}\n${results.annotated.code}\n${'```'}`,
-                        `** Annotation Results **`,
+                        `**Annotation Results**`,
                         `${'```'} json\n${results.json}\n${'```'}`,
                     ];
                     const markdownOutputString = markdownOutput.join('\n\n');
