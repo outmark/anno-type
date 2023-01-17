@@ -1,0 +1,11 @@
+{
+  "private": true,
+  "name": "anno-type-gitpkg-consumer",
+  "version": "0.0.1",
+  "devDependencies": {
+    "@outmark/anno-type": "https://gitpkg.now.sh/SMotaal/anno-type/packages/anno-type?smotaal/prototype/annotate-twoslash"
+  },
+  "scripts": {
+    "test:twoslash:examples": "annotate-twoslash -am -r=../../twoslash -o=./output/test/twoslash ../../twoslash/examples/*.[tj]s"
+  }
+}
