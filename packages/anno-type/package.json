@@ -1,0 +1,16 @@
+{
+  "name": "@outmark/anno-type",
+  "version": "0.0.1",
+  "description": "A twoslash-inspired developer-oriented type-checking solution.",
+  "type": "module",
+  "bin": {
+    "annotate-twoslash": "./harness/annotate-twoslash.js"
+  },
+  "devDependencies": {
+    "@types/node": "*"
+  },
+  "dependencies": {
+    "@typescript/twoslash": "*",
+    "typescript": "*"
+  }
+}
