@@ -121,6 +121,7 @@ if (
                         "result",
                         "docs",
                         "defs",
+                        "errs",
                         // "type",
                     ],
                 },

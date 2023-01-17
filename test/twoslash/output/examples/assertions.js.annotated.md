@@ -12,6 +12,7 @@ export const asserts = (value) => { if (!value) throw new Error('Expected true')
 () => { asserts(false); asserts; };
 //                      ^?
 // @defs:
+// @errs:
 
 /** @param {*} value @return { asserts never } */
 export const neverAsserts = (value) => { }
@@ -19,6 +20,7 @@ export const neverAsserts = (value) => { }
 () => { neverAsserts(false); neverAsserts; };
 //                           ^?
 // @defs:
+// @errs:
 
 // @source: test/twoslash/examples/assertions.js
 
@@ -38,7 +40,8 @@ export const asserts = (value) => { if (!value) throw new Error('Expected true')
 () => { asserts(false); asserts; };
 //                      ^?
 // @defs: const asserts: (value: any) => asserts value
-//        [Error: 7027]: Unreachable code detected.
+//
+// @errs: [Error: 7027]: Unreachable code detected.
 //
 
 /** @param {*} value @return { asserts never } */
@@ -47,6 +50,8 @@ export const neverAsserts = (value) => { }
 () => { neverAsserts(false); neverAsserts; };
 //                           ^?
 // @defs: const neverAsserts: (value: any) => asserts never
+//
+// @errs: 
 //
 
 // @source: test/twoslash/examples/assertions.js
@@ -58,10 +63,10 @@ export const neverAsserts = (value) => { }
 ``` json
 {
   "annotated": {
-    "code": "// @ts-check\n// @errors: 7027\n// @strict: true\n// @allowUnreachableCode: false\n\n/** @param {*} value @return { asserts value } */\nexport const asserts = (value) => { if (!value) throw new Error('Expected true'); }\n\n() => { asserts(false); asserts; };\n//                      ^?\n// @defs: const asserts: (value: any) => asserts value\n//        [Error: 7027]: Unreachable code detected.\n//\n\n/** @param {*} value @return { asserts never } */\nexport const neverAsserts = (value) => { }\n\n() => { neverAsserts(false); neverAsserts; };\n//                           ^?\n// @defs: const neverAsserts: (value: any) => asserts never\n//\n\n// @source: test/twoslash/examples/assertions.js\n"
+    "code": "// @ts-check\n// @errors: 7027\n// @strict: true\n// @allowUnreachableCode: false\n\n/** @param {*} value @return { asserts value } */\nexport const asserts = (value) => { if (!value) throw new Error('Expected true'); }\n\n() => { asserts(false); asserts; };\n//                      ^?\n// @defs: const asserts: (value: any) => asserts value\n//\n// @errs: [Error: 7027]: Unreachable code detected.\n//\n\n/** @param {*} value @return { asserts never } */\nexport const neverAsserts = (value) => { }\n\n() => { neverAsserts(false); neverAsserts; };\n//                           ^?\n// @defs: const neverAsserts: (value: any) => asserts never\n//\n// @errs: \n//\n\n// @source: test/twoslash/examples/assertions.js\n"
   },
   "twoslash": {
-    "code": "// @ts-check\n\n/** @param {*} value @return { asserts value } */\nexport const asserts = (value) => { if (!value) throw new Error('Expected true'); }\n\n() => { asserts(false); asserts; };\n// @defs:\n\n/** @param {*} value @return { asserts never } */\nexport const neverAsserts = (value) => { }\n\n() => { neverAsserts(false); neverAsserts; };\n// @defs:\n\n",
+    "code": "// @ts-check\n\n/** @param {*} value @return { asserts value } */\nexport const asserts = (value) => { if (!value) throw new Error('Expected true'); }\n\n() => { asserts(false); asserts; };\n// @defs:\n// @errs:\n\n/** @param {*} value @return { asserts never } */\nexport const neverAsserts = (value) => { }\n\n() => { neverAsserts(false); neverAsserts; };\n// @defs:\n// @errs:\n\n",
     "extension": "js",
     "highlights": [],
     "queries": [
@@ -77,11 +82,11 @@ export const neverAsserts = (value) => { }
       {
         "docs": "",
         "kind": "query",
-        "start": 319,
+        "start": 329,
         "length": 49,
         "text": "const neverAsserts: (value: any) => asserts never",
         "offset": 29,
-        "line": 12
+        "line": 13
       }
     ],
     "staticQuickInfos": [
@@ -142,36 +147,36 @@ export const neverAsserts = (value) => { }
       {
         "text": "const neverAsserts: (value: any) => asserts never",
         "docs": "",
-        "start": 259,
+        "start": 269,
         "length": 12,
-        "line": 9,
+        "line": 10,
         "character": 13,
         "targetString": "neverAsserts"
       },
       {
         "text": "(parameter) value: any",
         "docs": "",
-        "start": 275,
+        "start": 285,
         "length": 5,
-        "line": 9,
+        "line": 10,
         "character": 29,
         "targetString": "value"
       },
       {
         "text": "const neverAsserts: (value: any) => asserts never",
         "docs": "",
-        "start": 298,
+        "start": 308,
         "length": 12,
-        "line": 11,
+        "line": 12,
         "character": 8,
         "targetString": "neverAsserts"
       },
       {
         "text": "const neverAsserts: (value: any) => asserts never",
         "docs": "",
-        "start": 319,
+        "start": 329,
         "length": 12,
-        "line": 11,
+        "line": 12,
         "character": 29,
         "targetString": "neverAsserts"
       }
@@ -188,11 +193,11 @@ export const neverAsserts = (value) => { }
         "id": "err-7027-173-8"
       }
     ],
-    "playgroundURL": "https://www.typescriptlang.org/play/#code/PTAEAEBcGcFoGMAWBTeBrAUCCyBOuB7XaALlAHYAGAJnKzHGklwEt5IzmBXZeiAQwA2gggHcAqgDtcyfkn4AjQcgDCBACbIyAMyHReWAFSGIAB365+AW1ABvQwF9QANyE8IMyF1yS7oftD6uDAubsigTobAGMgAHqZEkKDwBJJM-oF4IQC8oAAUroI8AJSg2QB8fiza+QCEhSWgkIiEoqCSyG0AovhEeQDkXfGokMjqTbg8-cUA3BEYGHmlFX4BQTB5uoL6sxnr0HMOM3ygp2fnF5cAegD8fOCa2qQLwMZmFtZ2jqFF4eCe3l8tj2WWg7WQzjwEVAURi8USyVS6Q6kNwAEFMsEwbkCmFlpVgQ4FksygTwaiMftNnpkLsUXhKaDDsdsJc2eyLrd7o9nvdoARvPAtE1kExgJBRARoIIAohgHFrKZlNBgGssiwkQA6ABW0AwQA",
+    "playgroundURL": "https://www.typescriptlang.org/play/#code/PTAEAEBcGcFoGMAWBTeBrAUCCyBOuB7XaALlAHYAGAJnKzHGklwEt5IzmBXZeiAQwA2gggHcAqgDtcyfkn4AjQcgDCBACbIyAMyHReWAFSGIAB365+AW1ABvQwF9QANyE8IMyF1yS7oftD6uDAubsigTobAGMgAHqZEkKDwBJJM-oF4IQC8oAAUroI8AJSg2QB8fiza+QCEhSWgkIiEoqCSyG0AovhEeQDkXfGokMjqTbg8-cUA3BEYGHmlFX4BQTB5uoL6sxnr0HMOM3ygp2fnF5cAegD8fOCa2qT3eMQkC8DGZhbWdo6hRXC4E83l8tj2WWg7WQzjwEVAURi8USyVS6Q6sNwAEFMsEobkCmFlpVwQ4FksyiToZicftNnpkLsMXhaZDDsdsJcudyLrd7o9nthwK9nvdoARvPAtE1kExgJBRARoIIAohgHFrKZlNBgGssiw0QA6ABW0AwQA",
     "tags": [
       {
         "name": "source",
-        "line": 19,
+        "line": 21,
         "annotation": "test/twoslash/examples/assertions.js"
       }
     ]
