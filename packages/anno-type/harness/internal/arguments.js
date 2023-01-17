@@ -1,5 +1,7 @@
 // @ts-check
 
+import { GroupCaptureRegExp } from './expressions.js';
+
 /**
  * Command line argument matcher with named capture groups.
  */
@@ -22,18 +24,16 @@ export const CommandLineArgumentGroupMatcher =
     //     `--param`, `--no-param`, `--other-param`, `--param=0`, `--other-param=1`, `--empty-param=`,
     //     `anything`,
     // ].reduce((r, v) => (r[JSON.stringify(v = v.trim())] = r['[[RegExp]]'].exec(v)?.groups, r));
-    /** @typedef {Record<'flagPrefix'|'flags'|'flag'|'parameterPrefix'|'parameter'|'valuePrefix'|'value', string | undefined>} CommandLineArgumentMatchGroups */
-    /** @type {GroupCapturingExpression<CommandLineArgumentMatchGroups>} */
+    /** @type {GroupCaptureRegExp<'flagPrefix'|'flags'|'flag'|'parameterPrefix'|'parameter'|'valuePrefix'|'value'>} */
     (/^-(?:(?:(?<flagPrefix>!)(?=[a-z]+$))?(?<flags>[a-z]+(?=$))|(?<flag>[a-z])(?==|[0-9]*$)|-(?:(?:(?<parameterPrefix>no)-(?=[a-z]+(?:-[a-z0-9]+)*$))?(?<parameter>[a-z]+(?:-[a-z0-9]+)*?)(?==|$)))(?:(?<valuePrefix>=)?(?<value>.+)?)?$|/i);
 
 
-export const TruthyValueMatcher = /^(?:true|yes|on|1)$/i;
-export const FalsyValueMatcher = /^(?:false|no|off|0)$/i;
-export const NumericValueMatcher = /^-?[0-9]+(?:\.[0-9]+)?$/;
+export const TruthyArgumentValueMatcher = /^(?:true|yes|on|1)$/i;
+export const FalsyArgumentValueMatcher = /^(?:false|no|off|0)$/i;
+export const NumericArgumentValueMatcher = /^-?[0-9]+(?:\.[0-9]+)?$/;
 
-export const PrimitiveValueMatcher =
-    /** @typedef {Record<'truthy' | 'falsy' | 'numeric' | 'string', string | undefined>} PrimitiveValueMatchGroups */
-    /** @type {GroupCapturingExpression<PrimitiveValueMatchGroups>} */
+export const PrimitiveArgumentValueMatcher =
+    /** @type {GroupCaptureRegExp<'truthy' | 'falsy' | 'numeric' | 'string'>} */
     (/^(?:(?<truthy>true|yes|on)|(?<falsy>false|no|off)|(?<numeric>-?[0-9]+(?:\.[0-9]+)?)|(?<string>.+))$|/i);
 
 /**
@@ -54,7 +54,7 @@ export class ArgumentParser {
      */
     constructor(options) {
 
-        /** @type {Partial<ArgumentParserInstanceOptions<flag, parameter, group>>} */
+        /** @type {Partial<ArgumentParserInstanceOptions<flag, parameter, group>> & ArgumentParser.defaults} */
         const defaults = { ...ArgumentParser.defaults, ... new.target.defaults };
 
         let { argumentMatcher, parameterGroups, parameterGroupsMatcher, keyMappings } = defaults;
@@ -85,7 +85,7 @@ export class ArgumentParser {
                 }
             }
 
-            argumentMatcher = options.argumentMatcher;
+            argumentMatcher = /** @type {CommandLineArgumentGroupMatcher} */ (options.argumentMatcher);
         }
 
         if (options?.keyMappings) {
@@ -140,7 +140,7 @@ export class ArgumentParser {
             if (typeof argument !== 'string')
                 throw new TypeError(`Argument must be a string, got ${typeof argument}.`);
 
-            const match = this.$options.argumentMatcher?.exec(argument);
+            const match = (/** @type {ArgumentParser.defaults['argumentMatcher']} */(this.$options.argumentMatcher))?.exec(argument);
 
             if (match == null)
                 throw new Error(`Argument matcher did not return a match when expected.`);
@@ -149,7 +149,7 @@ export class ArgumentParser {
 
             partialRecord.argument = argument;
             partialRecord.index = parseInt(indexString);
-            partialRecord.matched = /** @type {CommandLineArgumentMatchGroups} */ (match?.groups) ?? undefined;
+            partialRecord.matched = (match?.groups) ?? undefined;
 
             if (partialRecord.matched.value)
                 partialRecord.value = this.parseValue(partialRecord.matched.value);
@@ -182,7 +182,7 @@ export class ArgumentParser {
     }
 
     parseValue(value) {
-        const { truthy, falsy, numeric, string } = PrimitiveValueMatcher.exec(value ?? '').groups;
+        const { truthy, falsy, numeric, string } = PrimitiveArgumentValueMatcher.exec(value ?? '').groups;
         return truthy ? true : falsy ? false : numeric ? parseFloat(numeric) : string;
     }
 
@@ -232,6 +232,8 @@ export class ArgumentParser {
 
 }
 
+// /** @typedef {import('./expressions.js').GroupCaptureRegExpGroups<CommandLineArgumentGroupMatcher>} CommandLineArgumentMatchGroups */
+
 /**
  * @template {string} [flag = string]
  * @template {string} [parameter = string]
@@ -249,7 +251,7 @@ export class ArgumentParser {
  * @template {string} [flag = string]
  * @template {string} [parameter = string]
  * @template {string} [group = string]
- * @typedef {{argumentMatcher: GroupCapturingExpression, keyMappings?: Readonly<ArgumentKeyMappings<flag, parameter>>, parameterGroups?: Readonly<group[]>, parameterGroupsMatcher?:RegExp}} ArgumentParserInstanceOptions
+ * @typedef {{argumentMatcher: GroupCaptureRegExp, keyMappings?: Readonly<ArgumentKeyMappings<flag, parameter>>, parameterGroups?: Readonly<group[]>, parameterGroupsMatcher?:RegExp}} ArgumentParserInstanceOptions
  */
 
 /**
@@ -257,7 +259,7 @@ export class ArgumentParser {
  * @template {string} [parameter = string]
  * @template {string} [group = string]
  * @template [value = any]
- * @typedef {{argument: string, index: number, flag: flag | undefined, parameter: parameter | undefined, group: group | undefined, key: `-${flag}` | `--${parameter}` | `--${group}-${string}` | `--${group}` | undefined, value: value, matched?: CommandLineArgumentMatchGroups}} ArgumentParserRecord
+ * @typedef {{argument: string, index: number, flag: flag | undefined, parameter: parameter | undefined, group: group | undefined, key: `-${flag}` | `--${parameter}` | `--${group}-${string}` | `--${group}` | undefined, value: value, matched?: Record<string, string|undefined>}} ArgumentParserRecord
  */
 
 /**
@@ -281,9 +283,4 @@ export class ArgumentParser {
  * @template {string} [flag = string]
  * @template {string} [parameter = string]
  * @typedef {FlagKey<flag> | ParameterKey<parameter>} ArgumentKey
- */
-
-/**
- * @template {{[name: string]: string | undefined}} [U = {[name: string]: string | undefined}]
- * @typedef {RegExp & {exec(string: any): RegExpExecArray & {groups: U}, [Symbol.match](string: string): RegExpMatchArray & {groups: U}, [Symbol.matchAll](string: string):IterableIterator<RegExpMatchArray & {groups: U}> }} GroupCapturingExpression
  */
