@@ -261,10 +261,12 @@ export function annotateTwoslashSouceText(sourceText, twoslashResult, options) {
                                                 currentState.twoslashQuery.offset <= error.character + error.length) {
                                                 if (error.line === currentState.twoslashQuery.line - 2) {
                                                     const previousLines = currentState.previousTwoslashTextLines.slice(-2);
-                                                    const currentLineExpression = previousLines[1]?.trim().length > 1 && previousLines[1].slice(error.character, error.character + error.length);
-                                                    const foundCurrentLineExpression = currentLineExpression && /^\w+$/i.test(currentLineExpression);
-                                                    const previousLineExpression = previousLines[0]?.trim().length > 0 && previousLines[0].slice(error.character, error.character + error.length);
-                                                    const foundPreviousLineExpression = previousLineExpression && /^\w+$/i.test(previousLineExpression);
+                                                    const currentLineExpression = previousLines[1]?.trim().length > 1 && previousLines[1].slice(error.character, error.character + error.length) || '';
+                                                    const previousLineExpression = previousLines[0]?.trim().length > 0 && previousLines[0].slice(error.character, error.character + error.length) || '';
+                                                    // const foundCurrentLineExpression = currentLineExpression && /^\w+$/i.test(currentLineExpression);
+                                                    // const foundPreviousLineExpression = previousLineExpression && /^\w+$/i.test(previousLineExpression);
+                                                    const foundCurrentLineExpression = currentLineExpression.length > 0 && currentLineExpression.trim() === currentLineExpression; // && /^\w+$/i.test(currentLineExpression);
+                                                    const foundPreviousLineExpression = previousLineExpression.length > 0 && previousLineExpression.trim() === previousLineExpression;
                                                     // const currentLineIndex = currentState.sourceTextLineIndex + 1;
                                                     if (foundCurrentLineExpression && foundPreviousLineExpression) {
                                                         const padding = `${annotation.line}`.length;
