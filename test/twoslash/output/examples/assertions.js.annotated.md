@@ -2,18 +2,21 @@
 
 ```js
 // @ts-check
-// @errors: 7027
+// @errors: 7027 2775 2502
 // @strict: true
 // @allowUnreachableCode: false
+// @noImplicitAny: true
 
-/** 
- * For this to work, it needs to have explicit type annotations on the declaration itself.
+/**
+ * @example
  * 
- * The expected behaviour is that code following a falsy assertion would be unreachable.
+ * For assertion functions to work, they needs to have explicit type annotations on every declaration.
  * 
- * @return { asserts value } 
+ * Their expected behaviour is that code following a falsy assertion would be unreachable.
+ * 
+ * @returns { asserts value }
  */
-export const assert1 = (value) => { if (!value) throw new Error('Expected true'); }
+export const assert1 = (value) => { if (!value) throw new Error('Expected true'); };
 
 () => { assert1(false); assert1; };
 //      ^?
@@ -27,10 +30,12 @@ export const assert1 = (value) => { if (!value) throw new Error('Expected true')
 //                     ^?
 // @errs:
 
-/** 
- * This works because of the type annotation on the declaration.
+/**
+ * @example
  * 
- * @type { typeof assert1 } 
+ * The following works because of the type annotation on the declaration.
+ * 
+ * @type { typeof assert1 }
  */
 export const assert2 = assert1;
 
@@ -46,8 +51,11 @@ export const assert2 = assert1;
 //                     ^?
 // @errs:
 
-/** 
- * This does not work since there is type annotation on the declaration.
+/**
+ * @example
+ * 
+ * This does not work since there is no type annotation on the declaration.
+ * 
  */
 export const assert3 = assert1;
 
@@ -63,6 +71,79 @@ export const assert3 = assert1;
 //                     ^?
 // @errs:
 
+/**
+ * @example
+ * 
+ * The following works because of the type annotation on the argument.
+ * 
+ * @param {(value) => asserts value} assert
+ */
+(
+    /**/ assert
+    //   ^?
+    // @errs:
+) => {
+
+    /**/ assert(false);
+    //   ^?
+    // @errs:
+
+    /**/ assert;
+    //   ^?
+    // @errs:
+
+};
+
+/**
+ * @example
+ * 
+ * The following does not work because of a circularity problem.
+ * 
+ * @param {typeof assert1} assert
+ */
+(
+
+    /**/ assert
+    //   ^?
+    // @errs:
+
+) => {
+
+    /**/ assert(false);
+    //   ^?
+    // @errs:
+
+    /**/ assert;
+    //   ^?
+    // @errs:
+
+};
+
+/**
+ * @example
+ * 
+ * The following does not work as well because of a circularity problem.
+ * 
+ * @param {typeof assert2} callAssertAnything
+ */
+(
+
+    /**/ callAssertAnything
+    //   ^?
+    // @errs:
+
+) => {
+
+    /**/ callAssertAnything(false);
+    //   ^?
+    // @errs:
+
+    /**/ callAssertAnything;
+    //   ^?
+    // @errs:
+
+};
+
 // @source: test/twoslash/examples/assertions.js
 
 ```
@@ -71,18 +152,21 @@ export const assert3 = assert1;
 
 ```js
 // @ts-check
-// @errors: 7027
+// @errors: 7027 2775 2502
 // @strict: true
 // @allowUnreachableCode: false
+// @noImplicitAny: true
 
-/** 
- * For this to work, it needs to have explicit type annotations on the declaration itself.
+/**
+ * @example
  * 
- * The expected behaviour is that code following a falsy assertion would be unreachable.
+ * For assertion functions to work, they needs to have explicit type annotations on every declaration.
  * 
- * @return { asserts value } 
+ * Their expected behaviour is that code following a falsy assertion would be unreachable.
+ * 
+ * @returns { asserts value }
  */
-export const assert1 = (value) => { if (!value) throw new Error('Expected true'); }
+export const assert1 = (value) => { if (!value) throw new Error('Expected true'); };
 
 () => { assert1(false); assert1; };
 //      ^?
@@ -99,10 +183,12 @@ export const assert1 = (value) => { if (!value) throw new Error('Expected true')
 // @errs: 
 //
 
-/** 
- * This works because of the type annotation on the declaration.
+/**
+ * @example
  * 
- * @type { typeof assert1 } 
+ * The following works because of the type annotation on the declaration.
+ * 
+ * @type { typeof assert1 }
  */
 export const assert2 = assert1;
 
@@ -121,8 +207,11 @@ export const assert2 = assert1;
 // @errs: 
 //
 
-/** 
- * This does not work since there is type annotation on the declaration.
+/**
+ * @example
+ * 
+ * This does not work since there is no type annotation on the declaration.
+ * 
  */
 export const assert3 = assert1;
 
@@ -141,6 +230,88 @@ export const assert3 = assert1;
 // @errs: 
 //
 
+/**
+ * @example
+ * 
+ * The following works because of the type annotation on the argument.
+ * 
+ * @param {(value) => asserts value} assert
+ */
+(
+    /**/ assert
+    //   ^?
+    // @errs: 
+    //
+) => {
+
+    /**/ assert(false);
+    //   ^?
+    // @errs: 
+    //
+
+    /**/ assert;
+    //   ^?
+    // @errs: [Error: 7027]: Unreachable code detected.
+    //
+
+};
+
+/**
+ * @example
+ * 
+ * The following does not work because of a circularity problem.
+ * 
+ * @param {typeof assert1} assert
+ */
+(
+
+    /**/ assert
+    //   ^?
+    // @errs: [Error: 2502]: 'assert' is referenced directly or indirectly in its own type annotation.
+    //
+
+) => {
+
+    /**/ assert(false);
+    //   ^?
+    // @errs: 
+    //
+
+    /**/ assert;
+    //   ^?
+    // @errs: 
+    //
+
+};
+
+/**
+ * @example
+ * 
+ * The following does not work as well because of a circularity problem.
+ * 
+ * @param {typeof assert2} callAssertAnything
+ */
+(
+
+    /**/ callAssertAnything
+    //   ^?
+    // @errs: [Error: 2502]: 'callAssertAnything' is referenced directly or indirectly in its own type annotation.
+    //
+
+) => {
+
+    /**/ callAssertAnything(false);
+    //   ^?
+    // @errs: 
+    //
+
+    /**/ callAssertAnything;
+    //   ^?
+    // @errs: 
+    //
+
+};
+
 // @source: test/twoslash/examples/assertions.js
 
 ```
@@ -150,329 +321,491 @@ export const assert3 = assert1;
 ``` json
 {
   "annotated": {
-    "code": "// @ts-check\n// @errors: 7027\n// @strict: true\n// @allowUnreachableCode: false\n\n/** \n * For this to work, it needs to have explicit type annotations on the declaration itself.\n * \n * The expected behaviour is that code following a falsy assertion would be unreachable.\n * \n * @return { asserts value } \n */\nexport const assert1 = (value) => { if (!value) throw new Error('Expected true'); }\n\n() => { assert1(false); assert1; };\n//      ^?\n// @errs: \n//\n\n() => { assert1(false); assert1; };\n//                      ^?\n// @errs: [Error: 7027]: Unreachable code detected.\n//\n\n() => { assert1(true); assert1; };\n//                     ^?\n// @errs: \n//\n\n/** \n * This works because of the type annotation on the declaration.\n * \n * @type { typeof assert1 } \n */\nexport const assert2 = assert1;\n\n() => { assert2(false); assert2; };\n//      ^?\n// @errs: \n//\n\n() => { assert2(false); assert2; };\n//                      ^?\n// @errs: [Error: 7027]: Unreachable code detected.\n//\n\n() => { assert2(true); assert2; };\n//                     ^?\n// @errs: \n//\n\n/** \n * This does not work since there is type annotation on the declaration.\n */\nexport const assert3 = assert1;\n\n() => { assert3(false); assert3; };\n//      ^?\n// @errs: [Error: 2775]: Assertions require every name in the call target to be declared with an explicit type annotation.\n//\n\n() => { assert3(false); assert3; };\n//                      ^?\n// @errs: \n//\n\n() => { assert3(true); assert3; };\n//                     ^?\n// @errs: \n//\n\n// @source: test/twoslash/examples/assertions.js\n"
+    "code": "// @ts-check\n// @errors: 7027 2775 2502\n// @strict: true\n// @allowUnreachableCode: false\n// @noImplicitAny: true\n\n/**\n * @example\n * \n * For assertion functions to work, they needs to have explicit type annotations on every declaration.\n * \n * Their expected behaviour is that code following a falsy assertion would be unreachable.\n * \n * @returns { asserts value }\n */\nexport const assert1 = (value) => { if (!value) throw new Error('Expected true'); };\n\n() => { assert1(false); assert1; };\n//      ^?\n// @errs: \n//\n\n() => { assert1(false); assert1; };\n//                      ^?\n// @errs: [Error: 7027]: Unreachable code detected.\n//\n\n() => { assert1(true); assert1; };\n//                     ^?\n// @errs: \n//\n\n/**\n * @example\n * \n * The following works because of the type annotation on the declaration.\n * \n * @type { typeof assert1 }\n */\nexport const assert2 = assert1;\n\n() => { assert2(false); assert2; };\n//      ^?\n// @errs: \n//\n\n() => { assert2(false); assert2; };\n//                      ^?\n// @errs: [Error: 7027]: Unreachable code detected.\n//\n\n() => { assert2(true); assert2; };\n//                     ^?\n// @errs: \n//\n\n/**\n * @example\n * \n * This does not work since there is no type annotation on the declaration.\n * \n */\nexport const assert3 = assert1;\n\n() => { assert3(false); assert3; };\n//      ^?\n// @errs: [Error: 2775]: Assertions require every name in the call target to be declared with an explicit type annotation.\n//\n\n() => { assert3(false); assert3; };\n//                      ^?\n// @errs: \n//\n\n() => { assert3(true); assert3; };\n//                     ^?\n// @errs: \n//\n\n/**\n * @example\n * \n * The following works because of the type annotation on the argument.\n * \n * @param {(value) => asserts value} assert\n */\n(\n    /**/ assert\n    //   ^?\n    // @errs: \n    //\n) => {\n\n    /**/ assert(false);\n    //   ^?\n    // @errs: \n    //\n\n    /**/ assert;\n    //   ^?\n    // @errs: [Error: 7027]: Unreachable code detected.\n    //\n\n};\n\n/**\n * @example\n * \n * The following does not work because of a circularity problem.\n * \n * @param {typeof assert1} assert\n */\n(\n\n    /**/ assert\n    //   ^?\n    // @errs: [Error: 2502]: 'assert' is referenced directly or indirectly in its own type annotation.\n    //\n\n) => {\n\n    /**/ assert(false);\n    //   ^?\n    // @errs: \n    //\n\n    /**/ assert;\n    //   ^?\n    // @errs: \n    //\n\n};\n\n/**\n * @example\n * \n * The following does not work as well because of a circularity problem.\n * \n * @param {typeof assert2} callAssertAnything\n */\n(\n\n    /**/ callAssertAnything\n    //   ^?\n    // @errs: [Error: 2502]: 'callAssertAnything' is referenced directly or indirectly in its own type annotation.\n    //\n\n) => {\n\n    /**/ callAssertAnything(false);\n    //   ^?\n    // @errs: \n    //\n\n    /**/ callAssertAnything;\n    //   ^?\n    // @errs: \n    //\n\n};\n\n// @source: test/twoslash/examples/assertions.js\n"
   },
   "twoslash": {
-    "code": "// @ts-check\n\n/** \n * For this to work, it needs to have explicit type annotations on the declaration itself.\n * \n * The expected behaviour is that code following a falsy assertion would be unreachable.\n * \n * @return { asserts value } \n */\nexport const assert1 = (value) => { if (!value) throw new Error('Expected true'); }\n\n() => { assert1(false); assert1; };\n// @errs:\n\n() => { assert1(false); assert1; };\n// @errs:\n\n() => { assert1(true); assert1; };\n// @errs:\n\n/** \n * This works because of the type annotation on the declaration.\n * \n * @type { typeof assert1 } \n */\nexport const assert2 = assert1;\n\n() => { assert2(false); assert2; };\n// @errs:\n\n() => { assert2(false); assert2; };\n// @errs:\n\n() => { assert2(true); assert2; };\n// @errs:\n\n/** \n * This does not work since there is type annotation on the declaration.\n */\nexport const assert3 = assert1;\n\n() => { assert3(false); assert3; };\n// @errs:\n\n() => { assert3(false); assert3; };\n// @errs:\n\n() => { assert3(true); assert3; };\n// @errs:\n\n",
+    "code": "// @ts-check\n\n/**\n * @example\n * \n * For assertion functions to work, they needs to have explicit type annotations on every declaration.\n * \n * Their expected behaviour is that code following a falsy assertion would be unreachable.\n * \n * @returns { asserts value }\n */\nexport const assert1 = (value) => { if (!value) throw new Error('Expected true'); };\n\n() => { assert1(false); assert1; };\n// @errs:\n\n() => { assert1(false); assert1; };\n// @errs:\n\n() => { assert1(true); assert1; };\n// @errs:\n\n/**\n * @example\n * \n * The following works because of the type annotation on the declaration.\n * \n * @type { typeof assert1 }\n */\nexport const assert2 = assert1;\n\n() => { assert2(false); assert2; };\n// @errs:\n\n() => { assert2(false); assert2; };\n// @errs:\n\n() => { assert2(true); assert2; };\n// @errs:\n\n/**\n * @example\n * \n * This does not work since there is no type annotation on the declaration.\n * \n */\nexport const assert3 = assert1;\n\n() => { assert3(false); assert3; };\n// @errs:\n\n() => { assert3(false); assert3; };\n// @errs:\n\n() => { assert3(true); assert3; };\n// @errs:\n\n/**\n * @example\n * \n * The following works because of the type annotation on the argument.\n * \n * @param {(value) => asserts value} assert\n */\n(\n    /**/ assert\n    // @errs:\n) => {\n\n    /**/ assert(false);\n    // @errs:\n\n    /**/ assert;\n    // @errs:\n\n};\n\n/**\n * @example\n * \n * The following does not work because of a circularity problem.\n * \n * @param {typeof assert1} assert\n */\n(\n\n    /**/ assert\n    // @errs:\n\n) => {\n\n    /**/ assert(false);\n    // @errs:\n\n    /**/ assert;\n    // @errs:\n\n};\n\n/**\n * @example\n * \n * The following does not work as well because of a circularity problem.\n * \n * @param {typeof assert2} callAssertAnything\n */\n(\n\n    /**/ callAssertAnything\n    // @errs:\n\n) => {\n\n    /**/ callAssertAnything(false);\n    // @errs:\n\n    /**/ callAssertAnything;\n    // @errs:\n\n};\n\n",
     "extension": "js",
     "highlights": [],
     "queries": [
       {
-        "docs": "For this to work, it needs to have explicit type annotations on the declaration itself.\n\nThe expected behaviour is that code following a falsy assertion would be unreachable.",
+        "docs": "",
         "kind": "query",
-        "start": 334,
+        "start": 364,
         "length": 44,
         "text": "const assert1: (value: any) => asserts value",
         "offset": 8,
-        "line": 12
+        "line": 14
       },
       {
-        "docs": "For this to work, it needs to have explicit type annotations on the declaration itself.\n\nThe expected behaviour is that code following a falsy assertion would be unreachable.",
+        "docs": "",
         "kind": "query",
-        "start": 397,
+        "start": 427,
         "length": 44,
         "text": "const assert1: (value: any) => asserts value",
         "offset": 24,
-        "line": 15
+        "line": 17
       },
       {
-        "docs": "For this to work, it needs to have explicit type annotations on the declaration itself.\n\nThe expected behaviour is that code following a falsy assertion would be unreachable.",
+        "docs": "",
         "kind": "query",
-        "start": 443,
+        "start": 473,
         "length": 44,
         "text": "const assert1: (value: any) => asserts value",
         "offset": 23,
-        "line": 18
+        "line": 20
       },
       {
-        "docs": "For this to work, it needs to have explicit type annotations on the declaration itself.\n\nThe expected behaviour is that code following a falsy assertion would be unreachable.",
+        "docs": "",
         "kind": "query",
-        "start": 614,
+        "start": 667,
         "length": 44,
         "text": "const assert2: (value: any) => asserts value",
         "offset": 8,
-        "line": 28
+        "line": 32
       },
       {
-        "docs": "This works because of the type annotation on the declaration.",
+        "docs": "",
         "kind": "query",
-        "start": 677,
+        "start": 730,
         "length": 44,
         "text": "const assert2: (value: any) => asserts value",
         "offset": 24,
-        "line": 31
+        "line": 35
       },
       {
-        "docs": "This works because of the type annotation on the declaration.",
+        "docs": "",
         "kind": "query",
-        "start": 723,
+        "start": 776,
         "length": 44,
         "text": "const assert2: (value: any) => asserts value",
         "offset": 23,
-        "line": 34
+        "line": 38
       },
       {
-        "docs": "For this to work, it needs to have explicit type annotations on the declaration itself.\n\nThe expected behaviour is that code following a falsy assertion would be unreachable.",
+        "docs": "",
         "kind": "query",
-        "start": 869,
+        "start": 944,
         "length": 44,
         "text": "const assert3: (value: any) => asserts value",
         "offset": 8,
-        "line": 42
+        "line": 49
       },
       {
-        "docs": "This does not work since there is type annotation on the declaration.",
+        "docs": "",
         "kind": "query",
-        "start": 932,
+        "start": 1007,
         "length": 44,
         "text": "const assert3: (value: any) => asserts value",
         "offset": 24,
-        "line": 45
+        "line": 52
       },
       {
-        "docs": "This does not work since there is type annotation on the declaration.",
+        "docs": "",
         "kind": "query",
-        "start": 978,
+        "start": 1053,
         "length": 44,
         "text": "const assert3: (value: any) => asserts value",
         "offset": 23,
-        "line": 48
+        "line": 55
+      },
+      {
+        "docs": "",
+        "kind": "query",
+        "start": 1230,
+        "length": 49,
+        "text": "(parameter) assert: (value: any) => asserts value",
+        "offset": 9,
+        "line": 66
+      },
+      {
+        "docs": "",
+        "kind": "query",
+        "start": 1268,
+        "length": 49,
+        "text": "(parameter) assert: (value: any) => asserts value",
+        "offset": 9,
+        "line": 70
+      },
+      {
+        "docs": "",
+        "kind": "query",
+        "start": 1307,
+        "length": 49,
+        "text": "(parameter) assert: (value: any) => asserts value",
+        "offset": 9,
+        "line": 73
+      },
+      {
+        "docs": "",
+        "kind": "query",
+        "start": 1473,
+        "length": 23,
+        "text": "(parameter) assert: any",
+        "offset": 9,
+        "line": 87
+      },
+      {
+        "docs": "",
+        "kind": "query",
+        "start": 1512,
+        "length": 23,
+        "text": "(parameter) assert: any",
+        "offset": 9,
+        "line": 92
+      },
+      {
+        "docs": "",
+        "kind": "query",
+        "start": 1551,
+        "length": 23,
+        "text": "(parameter) assert: any",
+        "offset": 9,
+        "line": 95
+      },
+      {
+        "docs": "",
+        "kind": "query",
+        "start": 1737,
+        "length": 35,
+        "text": "(parameter) callAssertAnything: any",
+        "offset": 9,
+        "line": 109
+      },
+      {
+        "docs": "",
+        "kind": "query",
+        "start": 1788,
+        "length": 35,
+        "text": "(parameter) callAssertAnything: any",
+        "offset": 9,
+        "line": 114
+      },
+      {
+        "docs": "",
+        "kind": "query",
+        "start": 1839,
+        "length": 35,
+        "text": "(parameter) callAssertAnything: any",
+        "offset": 9,
+        "line": 117
       }
     ],
     "staticQuickInfos": [
       {
         "text": "const assert1: (value: any) => asserts value",
-        "docs": "For this to work, it needs to have explicit type annotations on the declaration itself.\n\nThe expected behaviour is that code following a falsy assertion would be unreachable.",
-        "start": 254,
+        "docs": "",
+        "start": 283,
         "length": 7,
-        "line": 9,
+        "line": 11,
         "character": 13,
         "targetString": "assert1"
       },
       {
         "text": "(parameter) value: any",
         "docs": "",
-        "start": 265,
+        "start": 294,
         "length": 5,
-        "line": 9,
+        "line": 11,
         "character": 24,
         "targetString": "value"
       },
       {
         "text": "(parameter) value: any",
         "docs": "",
-        "start": 282,
+        "start": 311,
         "length": 5,
-        "line": 9,
+        "line": 11,
         "character": 41,
         "targetString": "value"
       },
       {
         "text": "var Error: ErrorConstructor\nnew (message?: string | undefined) => Error",
         "docs": "",
-        "start": 299,
+        "start": 328,
         "length": 5,
-        "line": 9,
+        "line": 11,
         "character": 58,
         "targetString": "Error"
       },
       {
         "text": "const assert1: (value: any) => asserts value",
-        "docs": "For this to work, it needs to have explicit type annotations on the declaration itself.\n\nThe expected behaviour is that code following a falsy assertion would be unreachable.",
-        "start": 334,
+        "docs": "",
+        "start": 364,
         "length": 7,
-        "line": 11,
+        "line": 13,
         "character": 8,
         "targetString": "assert1"
       },
       {
         "text": "const assert1: (value: any) => asserts value",
-        "docs": "For this to work, it needs to have explicit type annotations on the declaration itself.\n\nThe expected behaviour is that code following a falsy assertion would be unreachable.",
-        "start": 350,
+        "docs": "",
+        "start": 380,
         "length": 7,
-        "line": 11,
+        "line": 13,
         "character": 24,
         "targetString": "assert1"
       },
       {
         "text": "const assert1: (value: any) => asserts value",
-        "docs": "For this to work, it needs to have explicit type annotations on the declaration itself.\n\nThe expected behaviour is that code following a falsy assertion would be unreachable.",
-        "start": 381,
+        "docs": "",
+        "start": 411,
         "length": 7,
-        "line": 14,
+        "line": 16,
         "character": 8,
         "targetString": "assert1"
       },
       {
         "text": "const assert1: (value: any) => asserts value",
-        "docs": "For this to work, it needs to have explicit type annotations on the declaration itself.\n\nThe expected behaviour is that code following a falsy assertion would be unreachable.",
-        "start": 397,
+        "docs": "",
+        "start": 427,
         "length": 7,
-        "line": 14,
+        "line": 16,
         "character": 24,
         "targetString": "assert1"
       },
       {
         "text": "const assert1: (value: any) => asserts value",
-        "docs": "For this to work, it needs to have explicit type annotations on the declaration itself.\n\nThe expected behaviour is that code following a falsy assertion would be unreachable.",
-        "start": 428,
+        "docs": "",
+        "start": 458,
         "length": 7,
-        "line": 17,
+        "line": 19,
         "character": 8,
         "targetString": "assert1"
       },
       {
         "text": "const assert1: (value: any) => asserts value",
-        "docs": "For this to work, it needs to have explicit type annotations on the declaration itself.\n\nThe expected behaviour is that code following a falsy assertion would be unreachable.",
-        "start": 443,
+        "docs": "",
+        "start": 473,
         "length": 7,
-        "line": 17,
+        "line": 19,
         "character": 23,
         "targetString": "assert1"
       },
       {
         "text": "const assert2: (value: any) => asserts value",
-        "docs": "This works because of the type annotation on the declaration.",
-        "start": 586,
+        "docs": "",
+        "start": 639,
         "length": 7,
-        "line": 25,
+        "line": 29,
         "character": 13,
         "targetString": "assert2"
       },
       {
         "text": "const assert1: (value: any) => asserts value",
-        "docs": "For this to work, it needs to have explicit type annotations on the declaration itself.\n\nThe expected behaviour is that code following a falsy assertion would be unreachable.",
-        "start": 596,
+        "docs": "",
+        "start": 649,
         "length": 7,
-        "line": 25,
+        "line": 29,
         "character": 23,
         "targetString": "assert1"
       },
       {
         "text": "const assert2: (value: any) => asserts value",
-        "docs": "For this to work, it needs to have explicit type annotations on the declaration itself.\n\nThe expected behaviour is that code following a falsy assertion would be unreachable.",
-        "start": 614,
+        "docs": "",
+        "start": 667,
         "length": 7,
-        "line": 27,
+        "line": 31,
         "character": 8,
         "targetString": "assert2"
       },
       {
         "text": "const assert2: (value: any) => asserts value",
-        "docs": "This works because of the type annotation on the declaration.",
-        "start": 630,
+        "docs": "",
+        "start": 683,
         "length": 7,
-        "line": 27,
+        "line": 31,
         "character": 24,
         "targetString": "assert2"
       },
       {
         "text": "const assert2: (value: any) => asserts value",
-        "docs": "For this to work, it needs to have explicit type annotations on the declaration itself.\n\nThe expected behaviour is that code following a falsy assertion would be unreachable.",
-        "start": 661,
+        "docs": "",
+        "start": 714,
         "length": 7,
-        "line": 30,
+        "line": 34,
         "character": 8,
         "targetString": "assert2"
       },
       {
         "text": "const assert2: (value: any) => asserts value",
-        "docs": "This works because of the type annotation on the declaration.",
-        "start": 677,
+        "docs": "",
+        "start": 730,
         "length": 7,
-        "line": 30,
+        "line": 34,
         "character": 24,
         "targetString": "assert2"
       },
       {
         "text": "const assert2: (value: any) => asserts value",
-        "docs": "For this to work, it needs to have explicit type annotations on the declaration itself.\n\nThe expected behaviour is that code following a falsy assertion would be unreachable.",
-        "start": 708,
+        "docs": "",
+        "start": 761,
         "length": 7,
-        "line": 33,
+        "line": 37,
         "character": 8,
         "targetString": "assert2"
       },
       {
         "text": "const assert2: (value: any) => asserts value",
-        "docs": "This works because of the type annotation on the declaration.",
-        "start": 723,
+        "docs": "",
+        "start": 776,
         "length": 7,
-        "line": 33,
+        "line": 37,
         "character": 23,
         "targetString": "assert2"
       },
       {
         "text": "const assert3: (value: any) => asserts value",
-        "docs": "This does not work since there is type annotation on the declaration.",
-        "start": 841,
-        "length": 7,
-        "line": 39,
-        "character": 13,
-        "targetString": "assert3"
-      },
-      {
-        "text": "const assert1: (value: any) => asserts value",
-        "docs": "For this to work, it needs to have explicit type annotations on the declaration itself.\n\nThe expected behaviour is that code following a falsy assertion would be unreachable.",
-        "start": 851,
-        "length": 7,
-        "line": 39,
-        "character": 23,
-        "targetString": "assert1"
-      },
-      {
-        "text": "const assert3: (value: any) => asserts value",
-        "docs": "For this to work, it needs to have explicit type annotations on the declaration itself.\n\nThe expected behaviour is that code following a falsy assertion would be unreachable.",
-        "start": 869,
-        "length": 7,
-        "line": 41,
-        "character": 8,
-        "targetString": "assert3"
-      },
-      {
-        "text": "const assert3: (value: any) => asserts value",
-        "docs": "This does not work since there is type annotation on the declaration.",
-        "start": 885,
-        "length": 7,
-        "line": 41,
-        "character": 24,
-        "targetString": "assert3"
-      },
-      {
-        "text": "const assert3: (value: any) => asserts value",
-        "docs": "For this to work, it needs to have explicit type annotations on the declaration itself.\n\nThe expected behaviour is that code following a falsy assertion would be unreachable.",
+        "docs": "",
         "start": 916,
         "length": 7,
-        "line": 44,
+        "line": 46,
+        "character": 13,
+        "targetString": "assert3"
+      },
+      {
+        "text": "const assert1: (value: any) => asserts value",
+        "docs": "",
+        "start": 926,
+        "length": 7,
+        "line": 46,
+        "character": 23,
+        "targetString": "assert1"
+      },
+      {
+        "text": "const assert3: (value: any) => asserts value",
+        "docs": "",
+        "start": 944,
+        "length": 7,
+        "line": 48,
         "character": 8,
         "targetString": "assert3"
       },
       {
         "text": "const assert3: (value: any) => asserts value",
-        "docs": "This does not work since there is type annotation on the declaration.",
-        "start": 932,
+        "docs": "",
+        "start": 960,
         "length": 7,
-        "line": 44,
+        "line": 48,
         "character": 24,
         "targetString": "assert3"
       },
       {
         "text": "const assert3: (value: any) => asserts value",
-        "docs": "For this to work, it needs to have explicit type annotations on the declaration itself.\n\nThe expected behaviour is that code following a falsy assertion would be unreachable.",
-        "start": 963,
+        "docs": "",
+        "start": 991,
         "length": 7,
-        "line": 47,
+        "line": 51,
         "character": 8,
         "targetString": "assert3"
       },
       {
         "text": "const assert3: (value: any) => asserts value",
-        "docs": "This does not work since there is type annotation on the declaration.",
-        "start": 978,
+        "docs": "",
+        "start": 1007,
         "length": 7,
-        "line": 47,
+        "line": 51,
+        "character": 24,
+        "targetString": "assert3"
+      },
+      {
+        "text": "const assert3: (value: any) => asserts value",
+        "docs": "",
+        "start": 1038,
+        "length": 7,
+        "line": 54,
+        "character": 8,
+        "targetString": "assert3"
+      },
+      {
+        "text": "const assert3: (value: any) => asserts value",
+        "docs": "",
+        "start": 1053,
+        "length": 7,
+        "line": 54,
         "character": 23,
         "targetString": "assert3"
+      },
+      {
+        "text": "(parameter) assert: (value: any) => asserts value",
+        "docs": "",
+        "start": 1230,
+        "length": 6,
+        "line": 65,
+        "character": 9,
+        "targetString": "assert"
+      },
+      {
+        "text": "(parameter) assert: (value: any) => asserts value",
+        "docs": "",
+        "start": 1268,
+        "length": 6,
+        "line": 69,
+        "character": 9,
+        "targetString": "assert"
+      },
+      {
+        "text": "(parameter) assert: (value: any) => asserts value",
+        "docs": "",
+        "start": 1307,
+        "length": 6,
+        "line": 72,
+        "character": 9,
+        "targetString": "assert"
+      },
+      {
+        "text": "(parameter) assert: any",
+        "docs": "",
+        "start": 1473,
+        "length": 6,
+        "line": 86,
+        "character": 9,
+        "targetString": "assert"
+      },
+      {
+        "text": "(parameter) assert: any",
+        "docs": "",
+        "start": 1512,
+        "length": 6,
+        "line": 91,
+        "character": 9,
+        "targetString": "assert"
+      },
+      {
+        "text": "(parameter) assert: any",
+        "docs": "",
+        "start": 1551,
+        "length": 6,
+        "line": 94,
+        "character": 9,
+        "targetString": "assert"
+      },
+      {
+        "text": "(parameter) callAssertAnything: any",
+        "docs": "",
+        "start": 1737,
+        "length": 18,
+        "line": 108,
+        "character": 9,
+        "targetString": "callAssertAnything"
+      },
+      {
+        "text": "(parameter) callAssertAnything: any",
+        "docs": "",
+        "start": 1788,
+        "length": 18,
+        "line": 113,
+        "character": 9,
+        "targetString": "callAssertAnything"
+      },
+      {
+        "text": "(parameter) callAssertAnything: any",
+        "docs": "",
+        "start": 1839,
+        "length": 18,
+        "line": 116,
+        "character": 9,
+        "targetString": "callAssertAnything"
       }
     ],
     "errors": [
@@ -480,88 +813,128 @@ export const assert3 = assert1;
         "category": 1,
         "code": 7006,
         "length": 5,
-        "start": 265,
-        "line": 9,
-        "character": 24,
-        "renderedMessage": "Parameter 'value' implicitly has an 'any' type.",
-        "id": "err-7006-265-5"
-      },
-      {
-        "category": 1,
-        "code": 7027,
-        "length": 8,
-        "start": 350,
+        "start": 294,
         "line": 11,
         "character": 24,
-        "renderedMessage": "Unreachable code detected.",
-        "id": "err-7027-350-8"
+        "renderedMessage": "Parameter 'value' implicitly has an 'any' type.",
+        "id": "err-7006-294-5"
       },
       {
         "category": 1,
         "code": 7027,
         "length": 8,
-        "start": 397,
-        "line": 14,
+        "start": 380,
+        "line": 13,
         "character": 24,
         "renderedMessage": "Unreachable code detected.",
-        "id": "err-7027-397-8"
+        "id": "err-7027-380-8"
       },
       {
         "category": 1,
         "code": 7027,
         "length": 8,
-        "start": 630,
-        "line": 27,
+        "start": 427,
+        "line": 16,
         "character": 24,
         "renderedMessage": "Unreachable code detected.",
-        "id": "err-7027-630-8"
+        "id": "err-7027-427-8"
       },
       {
         "category": 1,
         "code": 7027,
         "length": 8,
-        "start": 677,
-        "line": 30,
+        "start": 683,
+        "line": 31,
         "character": 24,
         "renderedMessage": "Unreachable code detected.",
-        "id": "err-7027-677-8"
+        "id": "err-7027-683-8"
+      },
+      {
+        "category": 1,
+        "code": 7027,
+        "length": 8,
+        "start": 730,
+        "line": 34,
+        "character": 24,
+        "renderedMessage": "Unreachable code detected.",
+        "id": "err-7027-730-8"
       },
       {
         "category": 1,
         "code": 2775,
         "length": 7,
-        "start": 869,
-        "line": 41,
+        "start": 944,
+        "line": 48,
         "character": 8,
         "renderedMessage": "Assertions require every name in the call target to be declared with an explicit type annotation.",
-        "id": "err-2775-869-7"
+        "id": "err-2775-944-7"
       },
       {
         "category": 1,
         "code": 2775,
         "length": 7,
-        "start": 916,
-        "line": 44,
+        "start": 991,
+        "line": 51,
         "character": 8,
         "renderedMessage": "Assertions require every name in the call target to be declared with an explicit type annotation.",
-        "id": "err-2775-916-7"
+        "id": "err-2775-991-7"
       },
       {
         "category": 1,
         "code": 2775,
         "length": 7,
-        "start": 963,
-        "line": 47,
+        "start": 1038,
+        "line": 54,
         "character": 8,
         "renderedMessage": "Assertions require every name in the call target to be declared with an explicit type annotation.",
-        "id": "err-2775-963-7"
+        "id": "err-2775-1038-7"
+      },
+      {
+        "category": 1,
+        "code": 7006,
+        "length": 5,
+        "start": 1183,
+        "line": 62,
+        "character": 12,
+        "renderedMessage": "Parameter 'value' implicitly has an 'any' type.",
+        "id": "err-7006-1183-5"
+      },
+      {
+        "category": 1,
+        "code": 7027,
+        "length": 7,
+        "start": 1307,
+        "line": 72,
+        "character": 9,
+        "renderedMessage": "Unreachable code detected.",
+        "id": "err-7027-1307-7"
+      },
+      {
+        "category": 1,
+        "code": 2502,
+        "length": 6,
+        "start": 1473,
+        "line": 86,
+        "character": 9,
+        "renderedMessage": "'assert' is referenced directly or indirectly in its own type annotation.",
+        "id": "err-2502-1473-6"
+      },
+      {
+        "category": 1,
+        "code": 2502,
+        "length": 18,
+        "start": 1737,
+        "line": 108,
+        "character": 9,
+        "renderedMessage": "'callAssertAnything' is referenced directly or indirectly in its own type annotation.",
+        "id": "err-2502-1737-18"
       }
     ],
-    "playgroundURL": "https://www.typescriptlang.org/play/#code/PTAEAEBcGcFoGMAWBTeBrAUCCyBOuB7XaALlAHYAGAJnKzHGklwEt5IzmBXZeiAQwA2gggHcAqgDtcyfkn4AjQcgDCBACbIyAMyHReWAFSHQGUCYBiRUJEQtoNgqFFE0AGlAtIoScmTqHSCdEfgA3ZFBkAA8AB0E2LxsATxiI-klJAkh+SBYCSQd8mxRQTXhBflwcvMlPGGRBbQA6MxNW0AAVEujU9n9QBWQQ0LyuXE9AkO94DQjtAmExFkkAc1B+UF1BaCT16H1cXKKXLkF1AYiuaVl5JWQW81NH8BlIMdqAbz2DmFBQoR4oAAvk9DMAMD0iNN8kxvnhIABGUAAXlAAAp-oIeABKFEAPlAXxY2nRAEJMTjioRRD5kDSAKL4IhogDk9NiqEg-W4yBZ2IA3MCMBg0bjkQSvvx9vCEWitvoBXDDgjBUD+XxQJrNQA9AD8fHAeGIJGFovxhKViLlemQiqlPxVwPV2C1rrd7q1eoNRtIprFEstsp5dulytVzrAHqjbq92EN+F9Rjajy69mcrgcg3g-C4+lABBJtgikBSaQyWWqRSKRdKqAqVSOkgeyZMUFLFpLqQLgeBoPBkMOoBmBW89vh1BRgfVIv9FrHh2o1u2tsF88g1HDGtdsYYPpNM-NktD66XCtXx43Tq30ZvO5wCf3ZvFc4vaOD55+l7V15vHrv8eNYVgGMUFOjsBx1AIZAHEybwXFwNBQGgZZ4GLFAZAmZJUnWctskbfNahrMp60rJtWn7WIoSHGFR2PABmSc1xVP1D0tOjTxXNjNxdbd9TjPcWOfI8fnY+VOLXOjuMjX9o3-ASDyEti31wHEP3hSSrx4mT3Tkh8gIYaACDGVDOGgyBgEgFxoAqaBEGAaJ+AAWziaDgDXGpoCaAAraAMCAA",
+    "playgroundURL": "https://www.typescriptlang.org/play/#code/PTAEAEBcGcFoGMAWBTeBrAUCCyBOuB7XaALlAHYAGAJnNFvIFZ7GasxxpJcBLeSMtwCuydhACGAG0kEA7gFUAdrmTik4gEaTkAYQIATZGQBmU6KOzhFBAJIBbAA6S+PSAEFFAT0G4RGLABUARigATgAHuKO2iFhsaAAYkSg4tDmuJA8BIqgxkKK-FmK0KCQBKCyRGgANKUonqCKyMj6JWWgiOIAbsigyOFOLpClng694orWkOKZ2SXZfT24DYbwkuK4M0UAdPHxACooPLh9A6iQLaAayJ1dWUInPG2dw-AGvcYE0nI8igDmKVyZgaqXSsxylSEkn0V16+RUak6WmQu1CoHi4BUkAexVAAG8Umk8DBQF0pCJQABfWLADD9BxEV5zYag4kARlAAF5QAAKMmSEQASi5AD58aAeMZeQBCflCuqEWSNZBKgCi+CIPIA5KqzvxLsJkFrBQBuKkm-w84WcsUE1kZNk80yScymwlgtlmykW7CgP1+gB6AH4xOA8MQSJbrbb3eynWZkG77ZBPeaxP6M5ms-7g6Hw6Qo6LxcnHYak0SHV6fWBs7XM7nLPnI4Fgmiw5FoqI0QcULkvjJZL8AZVcGgStd4OIhOZQAQpZBe5BRuNJgRpuDZzkF71VutNuDUXE20uxuKT8g57GHVSaXSBozQG9iiyK5BqFyrymLRgrUW7a-qHjF1EzNZNqCrdMMwbDgm0LG1iwAoDXVAgCIN9OsMNAaCcHwAsf2jBCwUAssUKItCa0w2tsLDXDm2AIIMX6KInC7I8wkOJ5QH0AhkBKKYKiqUBoF+eBem3FQJT48pzxSVd1yKTc6h3VA9y2bJD3RUJaXpB8ny4T8AGYPxLb9f3g-8wQMpCQMM8is2o2D8L-QzrPLSy7MousHNouCY2TKySNstN0M8+sQ0bHyW0YjsWL2NFDg+fsfn+ATR3HVApxnS9txGU8JimNScgWHKNj+IQ7GQRRIA0jEHA2KJ8T5clEyLZMSjlZBKU-W8eRCf16ICMBkz6v10NzDMIojDACLxfwJqCIbX1ci0Joo8b+pgyL5sGz8Vo2nMQ1WnCpowb1-AG6LmJibt4t7T5vkHFLuN4xo11StBYUnadekvcRH2OeAoQ2VwGgcQhkTsGq2zqzY7Hxc9ftfNkuuGrSfzm-qFu6o7A0O-aaJOmaMdGrHk2WkbQDGvHRs2k7tsWsE9ppg6KcmvCzqitsmM7OL2LupLHoBZ6pOGEcPtSCpkGkT7Mp+qU-vgAGgd4JdQDBggIahsJwBhhq8QR+WAK6ydpDcV8PE8Bchx64nKaxk3JDNsELat-5WbW6nKdpvCidZ+2pEd82vFdv5yZxrDPbZ5t6cfAOneJF3ECHJmvZZo6CfZ79LGgAgHlEwReMgYBIEqaB1mgRBgG5ljoGAZMimgbYACtoAwIA",
     "tags": [
       {
         "name": "source",
-        "line": 62,
+        "line": 143,
         "annotation": "test/twoslash/examples/assertions.js"
       }
     ]

@@ -1,16 +1,19 @@
 // @ts-check
-// @errors: 7027
+// @errors: 7027 2775 2502
 // @strict: true
 // @allowUnreachableCode: false
+// @noImplicitAny: true
 
-/** 
- * For this to work, it needs to have explicit type annotations on the declaration itself.
+/**
+ * @example
  * 
- * The expected behaviour is that code following a falsy assertion would be unreachable.
+ * For assertion functions to work, they needs to have explicit type annotations on every declaration.
  * 
- * @return { asserts value } 
+ * Their expected behaviour is that code following a falsy assertion would be unreachable.
+ * 
+ * @returns { asserts value }
  */
-export const assert1 = (value) => { if (!value) throw new Error('Expected true'); }
+export const assert1 = (value) => { if (!value) throw new Error('Expected true'); };
 
 () => { assert1(false); assert1; };
 //      ^?
@@ -24,10 +27,12 @@ export const assert1 = (value) => { if (!value) throw new Error('Expected true')
 //                     ^?
 // @errs:
 
-/** 
- * This works because of the type annotation on the declaration.
+/**
+ * @example
  * 
- * @type { typeof assert1 } 
+ * The following works because of the type annotation on the declaration.
+ * 
+ * @type { typeof assert1 }
  */
 export const assert2 = assert1;
 
@@ -43,8 +48,11 @@ export const assert2 = assert1;
 //                     ^?
 // @errs:
 
-/** 
- * This does not work since there is type annotation on the declaration.
+/**
+ * @example
+ * 
+ * This does not work since there is no type annotation on the declaration.
+ * 
  */
 export const assert3 = assert1;
 
@@ -59,5 +67,78 @@ export const assert3 = assert1;
 () => { assert3(true); assert3; };
 //                     ^?
 // @errs:
+
+/**
+ * @example
+ * 
+ * The following works because of the type annotation on the argument.
+ * 
+ * @param {(value) => asserts value} assert
+ */
+(
+    /**/ assert
+    //   ^?
+    // @errs:
+) => {
+
+    /**/ assert(false);
+    //   ^?
+    // @errs:
+
+    /**/ assert;
+    //   ^?
+    // @errs:
+
+};
+
+/**
+ * @example
+ * 
+ * The following does not work because of a circularity problem.
+ * 
+ * @param {typeof assert1} assert
+ */
+(
+
+    /**/ assert
+    //   ^?
+    // @errs:
+
+) => {
+
+    /**/ assert(false);
+    //   ^?
+    // @errs:
+
+    /**/ assert;
+    //   ^?
+    // @errs:
+
+};
+
+/**
+ * @example
+ * 
+ * The following does not work as well because of a circularity problem.
+ * 
+ * @param {typeof assert2} callAssertAnything
+ */
+(
+
+    /**/ callAssertAnything
+    //   ^?
+    // @errs:
+
+) => {
+
+    /**/ callAssertAnything(false);
+    //   ^?
+    // @errs:
+
+    /**/ callAssertAnything;
+    //   ^?
+    // @errs:
+
+};
 
 // @source: test/twoslash/examples/assertions.js
