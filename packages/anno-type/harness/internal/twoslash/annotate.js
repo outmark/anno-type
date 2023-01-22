@@ -1,19 +1,17 @@
 // @ts-check
 
-import { GroupCaptureRegExp } from '../expressions.js';
-
 /**
  * Matches a predetermined query chunk with the line of code and annotation lines starting at the lastIndex.
  */
 const queryChunkMatcher =
-    /** @type {GroupCaptureRegExp<'code'|'indent'|'annotation'|'marker'|'head'|'offset'|'tail'>} */
+    /** @type {import('../expressions').GroupCaptureRegExp<'code'|'indent'|'annotation'|'marker'|'head'|'offset'|'tail'>} */
     (/(?<code>(?<indent>[ \t]*).*?(?:\r\n?|\n))(?<annotation>(?<marker>(?<head>\k<indent>\/\/)(?!\/)(?<offset>[ \t]*)\^\?.*?(?:\r\n?|\n))(?<tail>(?:\k<head>.*?(?:\r\n?|\n))*))/g);
 
 /**
  * Matches each annotation line in the annotation lines matched by queryChunkMatcher.
  */
 const annotationQueryLineMatcher =
-    /** @type {GroupCaptureRegExp<'head'|'indent'|'offset'|'marker'|'parameter'|'body'|'terminator'>} */
+    /** @type {import('../expressions').GroupCaptureRegExp<'head'|'indent'|'offset'|'marker'|'parameter'|'body'|'terminator'>} */
     (/^(?<head>(?<indent>[ \t]*)\/\/)(?!\/)(?<offset>[ \t]*)(?:(?<marker>\^\?)|(?<parameter>@?[a-z]+):[ \t]*)?(?<body>.*?)$(?<terminator>\r\n?|\n)/mg);
 
 annotationQueryLineMatcher.exec('')?.groups

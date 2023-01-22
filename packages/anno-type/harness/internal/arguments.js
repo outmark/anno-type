@@ -1,7 +1,5 @@
 // @ts-check
 
-import { GroupCaptureRegExp } from './expressions.js';
-
 /**
  * Command line argument matcher with named capture groups.
  */
@@ -24,7 +22,7 @@ export const CommandLineArgumentGroupMatcher =
     //     `--param`, `--no-param`, `--other-param`, `--param=0`, `--other-param=1`, `--empty-param=`,
     //     `anything`,
     // ].reduce((r, v) => (r[JSON.stringify(v = v.trim())] = r['[[RegExp]]'].exec(v)?.groups, r));
-    /** @type {GroupCaptureRegExp<'flagPrefix'|'flags'|'flag'|'parameterPrefix'|'parameter'|'valuePrefix'|'value'>} */
+    /** @type {import('./expressions').GroupCaptureRegExp<'flagPrefix'|'flags'|'flag'|'parameterPrefix'|'parameter'|'valuePrefix'|'value'>} */
     (/^-(?:(?:(?<flagPrefix>!)(?=[a-z]+$))?(?<flags>[a-z]+(?=$))|(?<flag>[a-z])(?==|[0-9]*$)|-(?:(?:(?<parameterPrefix>no)-(?=[a-z]+(?:-[a-z0-9]+)*$))?(?<parameter>[a-z]+(?:-[a-z0-9]+)*?)(?==|$)))(?:(?<valuePrefix>=)?(?<value>.+)?)?$|/i);
 
 
@@ -33,7 +31,7 @@ export const FalsyArgumentValueMatcher = /^(?:false|no|off|0)$/i;
 export const NumericArgumentValueMatcher = /^-?[0-9]+(?:\.[0-9]+)?$/;
 
 export const PrimitiveArgumentValueMatcher =
-    /** @type {GroupCaptureRegExp<'truthy' | 'falsy' | 'numeric' | 'string'>} */
+    /** @type {import('./expressions').GroupCaptureRegExp<'truthy' | 'falsy' | 'numeric' | 'string'>} */
     (/^(?:(?<truthy>true|yes|on)|(?<falsy>false|no|off)|(?<numeric>-?[0-9]+(?:\.[0-9]+)?)|(?<string>.+))$|/i);
 
 /**
@@ -45,7 +43,6 @@ export class ArgumentParser {
     static defaults = Object.freeze({
         argumentMatcher: CommandLineArgumentGroupMatcher,
     });
-
 
     $options;
 
@@ -251,7 +248,7 @@ export class ArgumentParser {
  * @template {string} [flag = string]
  * @template {string} [parameter = string]
  * @template {string} [group = string]
- * @typedef {{argumentMatcher: GroupCaptureRegExp, keyMappings?: Readonly<ArgumentKeyMappings<flag, parameter>>, parameterGroups?: Readonly<group[]>, parameterGroupsMatcher?:RegExp}} ArgumentParserInstanceOptions
+ * @typedef {{argumentMatcher: import('./expressions').GroupCaptureRegExp, keyMappings?: Readonly<ArgumentKeyMappings<flag, parameter>>, parameterGroups?: Readonly<group[]>, parameterGroupsMatcher?:RegExp}} ArgumentParserInstanceOptions
  */
 
 /**
