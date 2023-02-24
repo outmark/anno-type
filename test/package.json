@@ -13,7 +13,11 @@
     }
   },
   "scripts": {
-    "twoslash:examples": "annotate-twoslash -am -r=twoslash -o=twoslash/output twoslash/examples/*.[tj]s",
+    "annotate:examples": "yarn annotate:twoslash:examples && yarn annotate:heuristics:examples",
+    "pre:annotate:twoslash:examples": "[ -d output/twoslash/examples ] && rm -rf output/twoslash/examples; exit 0;",
+    "annotate:twoslash:examples": "annotate-twoslash -amj --use-twoslash --dont-use-language-service -r=sources -o=output/twoslash sources/examples/*.[tj]s",
+    "pre:annotate:heuristics:examples": "[ -d output/heuristics/examples ] && rm -rf output/heuristics/examples; exit 0;",
+    "annotate:heuristics:examples": "annotate-twoslash -amj --use-language-service --dont-use-twoslash -r=sources -o=output/heuristics sources/examples/*.[tj]s",
     "preinstall": "[[ $INIT_CWD == $(realpath ..) ]] || (echo \"The yarn install must be called on the workspace root.\" 1>&2 ; exit 1;);",
     "preinstall:clean": "[ -f yarn.lock ] && rm -i yarn.lock; exit 0;",
     "install:clean": "yarn git:clean:force; yarn",

@@ -7,10 +7,12 @@
     "annotate-twoslash": "./harness/annotate-twoslash.js"
   },
   "devDependencies": {
+    "@schemastore/package": "*",
     "@types/node": "*"
   },
   "dependencies": {
     "@typescript/twoslash": "*",
+    "@typescript/vfs": "*",
     "typescript": "*"
   }
 }

@@ -1,5 +1,3 @@
-// @ts-check
-
 /**
  * @template {string} [K=string]
  * @template {string|undefined} [V=string|undefined]

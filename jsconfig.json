@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json.schemastore.org/jsconfig",
+  "compilerOptions": {
+    "module": "ESNext",
+    "target": "ESNext",
+    "checkJs": true,
+    "moduleResolution": "NodeNext",
+    "keyofStringsOnly": true,
+    "strict": true,
+    "strictNullChecks": false,
+    "strictPropertyInitialization": false,
+    "noImplicitAny": false,
+    "noImplicitThis": false,
+    "noImplicitOverride": false,
+    "noImplicitReturns": false,
+    "suppressExcessPropertyErrors": true
+  },
+  "exclude": [
+    "node_modules",
+    "**/node_modules",
+    "**/[trash]/",
+    "test/**/output"
+  ]
+}

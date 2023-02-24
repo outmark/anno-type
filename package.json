@@ -4,7 +4,6 @@
   "type": "module",
   "scripts": {
     "install:clean:force": "yarn git:clean:force; yarn git:clean:force; yarn --force --check-files",
-    "test:twoslash:examples": "cd test && yarn twoslash:examples",
     "test:env": "cd test && yarn env",
     "preinstall:clean": "[ -f yarn.lock ] && rm -i yarn.lock; exit 0;",
     "install:clean": "yarn git:clean:force; yarn",

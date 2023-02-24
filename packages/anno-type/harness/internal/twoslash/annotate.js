@@ -1,33 +1,31 @@
-// @ts-check
-
 /**
  * Matches a predetermined query chunk with the line of code and annotation lines starting at the lastIndex.
  */
-const queryChunkMatcher =
-    /** @type {import('../expressions').GroupCaptureRegExp<'code'|'indent'|'annotation'|'marker'|'head'|'offset'|'tail'>} */
+export const queryChunkMatcher =
+    /** @type {import('../expressions.js').GroupCaptureRegExp<'code'|'indent'|'annotation'|'marker'|'head'|'offset'|'tail'>} */
     (/(?<code>(?<indent>[ \t]*).*?(?:\r\n?|\n))(?<annotation>(?<marker>(?<head>\k<indent>\/\/)(?!\/)(?<offset>[ \t]*)\^\?.*?(?:\r\n?|\n))(?<tail>(?:\k<head>.*?(?:\r\n?|\n))*))/g);
 
 /**
  * Matches each annotation line in the annotation lines matched by queryChunkMatcher.
  */
-const annotationQueryLineMatcher =
-    /** @type {import('../expressions').GroupCaptureRegExp<'head'|'indent'|'offset'|'marker'|'parameter'|'body'|'terminator'>} */
-    (/^(?<head>(?<indent>[ \t]*)\/\/)(?!\/)(?<offset>[ \t]*)(?:(?<marker>\^\?)|(?<parameter>@?[a-z]+):[ \t]*)?(?<body>.*?)$(?<terminator>\r\n?|\n)/mg);
+export const annotationQueryLineMatcher =
+    /** @type {import('../expressions.js').GroupCaptureRegExp<'head'|'indent'|'offset'|'marker'|'parameter'|'body'|'terminator'>} */
+    (/^(?<head>(?<indent>[ \t]*)\/\/)(?!\/)(?<offset>[ \t]*)(?:(?<marker>\^\?)|(?<parameter>@?[a-z]+):[ \t]*)?(?<body>.*?)$(?<terminator>\r\n?|\n)/img);
 
-annotationQueryLineMatcher.exec('')?.groups
+annotationQueryLineMatcher.exec('')?.groups;
 
 /**
  * Matches each line along with the line terminator if found.
  */
-const lineMatcher = /^.*(?:\r\n?|\n|$)/mg;
+export const lineMatcher = /^.*(?:\r\n?|\n|$)/mg;
 
 /** See: https://en.wikipedia.org/wiki/Null_character */
-const NUL = '\0';
+export const NUL = '\0';
 
 /** @type {Readonly<string[]>} */
-const VOID = Object.freeze([NUL]);
+export const VOID = Object.freeze([NUL]);
 
-const quoteKeyword = keyword => `\u00AB${(typeof keyword === 'string' && keyword) ?? ''}\u00BB`;
+export const quoteKeyword = keyword => `\u00AB${(typeof keyword === 'string' && keyword) ?? ''}\u00BB`;
 
 /** 
  * @param {string} sourceText
@@ -96,7 +94,7 @@ export function annotateTwoslashSouceText(sourceText, twoslashResult, options) {
             return matched;
         }
         return matched === false ? matched : forwardSourceTextByTextLines(...nextLines);
-    }
+    };
 
     const forwardTwoslashTextToLineIndex = (lineIndex) => {
         let matched = false;
@@ -114,7 +112,7 @@ export function annotateTwoslashSouceText(sourceText, twoslashResult, options) {
         else
             Object.freeze(currentState.previousTwoslashTextLines);
         return matched;
-    }
+    };
 
     /**
     * Assumes that each argument is equal to a corresponding line in the source text.
@@ -142,7 +140,7 @@ export function annotateTwoslashSouceText(sourceText, twoslashResult, options) {
             return true;
         }
         return false;
-    }
+    };
 
     const getErrorsAtLineIndex = (lineIndex) => {
         const errors = [];
@@ -169,7 +167,7 @@ export function annotateTwoslashSouceText(sourceText, twoslashResult, options) {
         }
 
         return errors;
-    }
+    };
 
     while (currentState.sourceTextLine !== NUL && !isNaN(currentState.sourceTextIndex)) {
         currentState.twoslashQuery = currentState.twoslashQueries[++currentState.twoslashQueryIndex];
@@ -197,10 +195,10 @@ export function annotateTwoslashSouceText(sourceText, twoslashResult, options) {
                     queryChunkMatcher.lastIndex = currentState.sourceTextIndex - 1;
                     const queryChunkMatch = queryChunkMatcher.exec(currentState.sourceText);
 
-                    annotation.chunks = queryChunkMatch.groups ?? {};
+                    annotation.chunks = queryChunkMatch.groups;
 
-                    if (annotation.chunks.code !== currentState.sourceTextLine)
-                        throw new Error(`Query code mismatch:\n\t${annotation.chunks.code?.trimEnd?.()}\n\t${currentState.sourceTextLine?.trimEnd?.()}`);
+                    if (!(annotation.chunks?.code === currentState.sourceTextLine))
+                        throw new Error(`Query code mismatch:\n\t${annotation.chunks?.code?.trimEnd?.() ?? ""}\n\t${currentState.sourceTextLine?.trimEnd?.()}`);
 
                     // console.log({ previousSourceTextLines: currentState.previousSourceTextLines, queryChunkMatch: annotation.chunks.annotation });
 
@@ -345,7 +343,7 @@ annotateTwoslashSouceText.defaults = {
     },
 }
 
-/** @typedef {import('./twoslash').twoslashSourceText.TwoslashResult} annotateTwoslashSouceText.TwoslashResult */
+/** @typedef {import('./twoslash.js').twoslashSourceText.TwoslashResult} annotateTwoslashSouceText.TwoslashResult */
 /** @typedef {Partial<typeof annotateTwoslashSouceText['defaults']>} annotateTwoslashSouceText.Options */
 /** @typedef {annotateTwoslashSouceText.TwoslashResult['queries']} annotateTwoslashSouceText.TwoslashQueries */
 /** @typedef {annotateTwoslashSouceText.TwoslashQueries[number]} annotateTwoslashSouceText.TwoslashQuery */

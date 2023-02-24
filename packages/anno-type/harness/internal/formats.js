@@ -1,5 +1,3 @@
-// @ts-check
-
 /** 
  * @template {{format: Format, extensions?: Iterable<Extension>  | undefined, parameter?: Parameter | undefined, default?: boolean | undefined}} T 
  * @template {string} Format
