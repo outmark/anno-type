@@ -16,6 +16,9 @@
     "packages": [
       "test",
       "packages/*"
+    ],
+    "tests": [
+      "test/packages/*"
     ]
   }
 }
